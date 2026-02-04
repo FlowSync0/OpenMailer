@@ -186,65 +186,82 @@
                 <h1 class="page-title">Nouvelle campagne</h1>
                 <p class="page-subtitle">Rédigez votre email comme un message classique</p>
             </div>
-            <form id="campaign-form" class="form-card">
-                <div class="form-group">
-                    <label class="form-label">Nom de la campagne</label>
-                    <input type="text" class="form-input" id="campaign-name" placeholder="Ex: Lancement produit Q1" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Objet de l'email</label>
-                    <input type="text" class="form-input" id="campaign-subject" placeholder="Ex: Découvrez notre nouvelle offre" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contenu de l'email</label>
-                    <div class="email-editor">
-                        <div class="editor-toolbar">
-                            <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="Gras">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z"/><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z"/></svg>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="Italique">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="formatText('underline')" title="Souligné">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
-                            </button>
-                            <div class="toolbar-separator"></div>
-                            <button type="button" class="toolbar-btn" onclick="insertLink()" title="Lien">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="insertImage()" title="Image">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            </button>
-                            <div class="toolbar-separator"></div>
-                            <button type="button" class="toolbar-btn" onclick="insertVariable('name')" title="Insérer {{name}}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            </button>
-                            <button type="button" class="toolbar-btn" onclick="insertVariable('company')" title="Insérer {{company}}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                            </button>
-                        </div>
-                        <div class="editor-content" id="email-content" contenteditable="true" data-placeholder="Bonjour {{name}},
+            <div class="campaign-editor-layout">
+                <form id="campaign-form" class="form-card editor-panel">
+                    <div class="form-group">
+                        <label class="form-label">Nom de la campagne</label>
+                        <input type="text" class="form-input" id="campaign-name" placeholder="Ex: Lancement produit Q1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objet de l'email</label>
+                        <input type="text" class="form-input" id="campaign-subject" placeholder="Ex: Découvrez notre nouvelle offre" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contenu de l'email</label>
+                        <div class="email-editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="Gras">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z"/><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z"/></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="Italique">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="formatText('underline')" title="Souligné">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <button type="button" class="toolbar-btn" onclick="insertLink()" title="Lien">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertImage()" title="Image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <button type="button" class="toolbar-btn" onclick="insertVariable('name')" title="Insérer {{name}}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertVariable('company')" title="Insérer {{company}}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                </button>
+                            </div>
+                            <div class="editor-content" id="email-content" contenteditable="true" data-placeholder="Bonjour {{name}},
 
 Écrivez votre message ici...
 
 Cordialement,
 Votre signature"></div>
+                        </div>
+                        <div class="variables-help">
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 8px;">Variables :</span>
+                            <span class="var-tag" onclick="insertVariable('name')">{{name}}</span>
+                            <span class="var-tag" onclick="insertVariable('company')">{{company}}</span>
+                            <span class="var-tag" onclick="insertVariable('email')">{{email}}</span>
+                        </div>
+                        <p class="form-hint">💡 Cliquez sur une image pour la redimensionner ou la supprimer</p>
+                        <input type="file" id="image-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
                     </div>
-                    <div class="variables-help">
-                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 8px;">Variables :</span>
-                        <span class="var-tag" onclick="insertVariable('name')">{{name}}</span>
-                        <span class="var-tag" onclick="insertVariable('company')">{{company}}</span>
-                        <span class="var-tag" onclick="insertVariable('email')">{{email}}</span>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Créer la campagne
+                        </button>
                     </div>
-                    <input type="file" id="image-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                </form>
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>Aperçu en direct</span>
+                    </div>
+                    <div class="preview-email-header">
+                        <div class="preview-field"><span class="preview-label">De:</span><span>votre@email.com</span></div>
+                        <div class="preview-field"><span class="preview-label">À:</span><span>Jean Dupont &lt;jean@exemple.fr&gt;</span></div>
+                        <div class="preview-field"><span class="preview-label">Objet:</span><span id="preview-subject">Votre objet ici...</span></div>
+                    </div>
+                    <div class="preview-content" id="email-preview">
+                        <p style="color: var(--text-muted); font-style: italic;">Commencez à écrire pour voir l'aperçu...</p>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <button type="submit" class="btn btn-primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                        Créer la campagne
-                    </button>
-                </div>
-            </form>
+            </div>
         </section>
 
         <!-- Settings Section -->
@@ -532,6 +549,7 @@ function handleImageUpload(input) {
         img.style.height = 'auto';
         img.style.borderRadius = '8px';
         img.style.margin = '12px 0';
+        img.onclick = function() { selectImage(this); };
         
         const editor = document.getElementById('email-content');
         editor.focus();
@@ -547,15 +565,279 @@ function handleImageUpload(input) {
         } else {
             editor.appendChild(img);
         }
+        updatePreview();
     };
     reader.readAsDataURL(file);
     input.value = '';
+}
+
+// Image selection and controls
+let selectedImage = null;
+let imageToolbar = null;
+
+function selectImage(img) {
+    // Deselect previous
+    if (selectedImage) {
+        selectedImage.classList.remove('selected');
+    }
+    
+    // Select new
+    selectedImage = img;
+    img.classList.add('selected');
+    
+    // Show toolbar
+    showImageToolbar(img);
+}
+
+function showImageToolbar(img) {
+    removeImageToolbar();
+    
+    // Detect current alignment
+    const style = img.style;
+    const float = style.float || 'none';
+    const display = style.display || '';
+    const margin = style.marginLeft || '';
+    
+    let currentAlign = 'inline';
+    if (display === 'block' && margin === 'auto') currentAlign = 'center';
+    else if (display === 'block' && float === 'none' && style.marginRight === 'auto') currentAlign = 'left';
+    else if (display === 'block' && float === 'none' && style.marginLeft === 'auto') currentAlign = 'right';
+    else if (float === 'left') currentAlign = 'wrap-left';
+    else if (float === 'right') currentAlign = 'wrap-right';
+    
+    imageToolbar = document.createElement('div');
+    imageToolbar.className = 'image-toolbar';
+    imageToolbar.innerHTML = `
+        <div class="toolbar-row">
+            <span class="size-label">Largeur:</span>
+            <input type="number" class="size-input" value="${img.width || 300}" min="50" max="800" onchange="resizeImage(this.value)">
+            <span class="size-label">px</span>
+            <button onclick="resizeImagePreset(100)" title="100%">100%</button>
+            <button onclick="resizeImagePreset(75)" title="75%">75%</button>
+            <button onclick="resizeImagePreset(50)" title="50%">50%</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-row">
+            <button onclick="alignImage('inline')" title="En ligne avec le texte" class="${currentAlign === 'inline' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+            </button>
+            <div class="toolbar-sep"></div>
+            <button onclick="alignImage('left')" title="Séparer - Aligner à gauche" class="${currentAlign === 'left' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="6" width="10" height="10" rx="1"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+            </button>
+            <button onclick="alignImage('center')" title="Séparer - Centrer" class="${currentAlign === 'center' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="7" y="6" width="10" height="10" rx="1"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+            </button>
+            <button onclick="alignImage('right')" title="Séparer - Aligner à droite" class="${currentAlign === 'right' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="11" y="6" width="10" height="10" rx="1"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+            </button>
+            <div class="toolbar-sep"></div>
+            <button onclick="alignImage('wrap-left')" title="Habiller - Texte à droite" class="${currentAlign === 'wrap-left' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="8" height="8" rx="1"/><line x1="14" y1="4" x2="21" y2="4"/><line x1="14" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+            </button>
+            <button onclick="alignImage('wrap-right')" title="Habiller - Texte à gauche" class="${currentAlign === 'wrap-right' ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="13" y="3" width="8" height="8" rx="1"/><line x1="3" y1="4" x2="10" y2="4"/><line x1="3" y1="8" x2="10" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+            </button>
+            <div class="toolbar-sep"></div>
+            <button onclick="addImageLink()" title="Ajouter un lien">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            </button>
+            <button class="danger" onclick="deleteSelectedImage()" title="Supprimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </button>
+        </div>
+    `;
+    
+    // Position toolbar above image
+    const rect = img.getBoundingClientRect();
+    
+    imageToolbar.style.position = 'fixed';
+    imageToolbar.style.left = `${Math.max(10, rect.left)}px`;
+    imageToolbar.style.top = `${Math.max(10, rect.top - 90)}px`;
+    
+    document.body.appendChild(imageToolbar);
+}
+
+// Image alignment functions
+function alignImage(alignment) {
+    if (!selectedImage) return;
+    
+    // Reset all styles first
+    selectedImage.style.display = '';
+    selectedImage.style.float = '';
+    selectedImage.style.marginLeft = '';
+    selectedImage.style.marginRight = '';
+    selectedImage.style.clear = '';
+    
+    switch(alignment) {
+        case 'inline':
+            // Default inline behavior
+            selectedImage.style.verticalAlign = 'middle';
+            break;
+        case 'left':
+            selectedImage.style.display = 'block';
+            selectedImage.style.marginRight = 'auto';
+            selectedImage.style.marginLeft = '0';
+            break;
+        case 'center':
+            selectedImage.style.display = 'block';
+            selectedImage.style.marginLeft = 'auto';
+            selectedImage.style.marginRight = 'auto';
+            break;
+        case 'right':
+            selectedImage.style.display = 'block';
+            selectedImage.style.marginLeft = 'auto';
+            selectedImage.style.marginRight = '0';
+            break;
+        case 'wrap-left':
+            selectedImage.style.float = 'left';
+            selectedImage.style.marginRight = '16px';
+            selectedImage.style.marginBottom = '8px';
+            break;
+        case 'wrap-right':
+            selectedImage.style.float = 'right';
+            selectedImage.style.marginLeft = '16px';
+            selectedImage.style.marginBottom = '8px';
+            break;
+    }
+    
+    // Refresh toolbar to show active state
+    showImageToolbar(selectedImage);
+    updatePreview();
+}
+
+function addImageLink() {
+    if (!selectedImage) return;
+    
+    // Check if image is already wrapped in a link
+    const parent = selectedImage.parentElement;
+    let currentUrl = '';
+    if (parent && parent.tagName === 'A') {
+        currentUrl = parent.href;
+    }
+    
+    const url = prompt('URL du lien (laisser vide pour supprimer):', currentUrl);
+    
+    if (url === null) return; // Cancelled
+    
+    if (url === '') {
+        // Remove link if exists
+        if (parent && parent.tagName === 'A') {
+            parent.replaceWith(selectedImage);
+        }
+    } else {
+        // Add or update link
+        if (parent && parent.tagName === 'A') {
+            parent.href = url;
+        } else {
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            selectedImage.parentNode.insertBefore(link, selectedImage);
+            link.appendChild(selectedImage);
+        }
+    }
+    updatePreview();
+}
+
+function removeImageToolbar() {
+    if (imageToolbar) {
+        imageToolbar.remove();
+        imageToolbar = null;
+    }
+}
+
+function resizeImage(width) {
+    if (selectedImage) {
+        selectedImage.style.width = width + 'px';
+        selectedImage.style.height = 'auto';
+        updatePreview();
+    }
+}
+
+function resizeImagePreset(percent) {
+    if (selectedImage) {
+        const editor = document.getElementById('email-content');
+        const maxWidth = editor.clientWidth - 40;
+        const newWidth = Math.round(maxWidth * (percent / 100));
+        selectedImage.style.width = newWidth + 'px';
+        selectedImage.style.height = 'auto';
+        
+        // Update input
+        const input = imageToolbar.querySelector('.size-input');
+        if (input) input.value = newWidth;
+        updatePreview();
+    }
+}
+
+function deleteSelectedImage() {
+    if (selectedImage) {
+        selectedImage.remove();
+        selectedImage = null;
+        removeImageToolbar();
+        updatePreview();
+    }
+}
+
+// Close toolbar when clicking outside
+document.addEventListener('click', function(e) {
+    if (imageToolbar && !imageToolbar.contains(e.target) && e.target !== selectedImage) {
+        if (selectedImage) selectedImage.classList.remove('selected');
+        selectedImage = null;
+        removeImageToolbar();
+    }
+});
+
+// Live Preview
+function updatePreview() {
+    const editor = document.getElementById('email-content');
+    const subjectInput = document.getElementById('campaign-subject');
+    const previewContent = document.getElementById('email-preview');
+    const previewSubject = document.getElementById('preview-subject');
+    
+    if (!previewContent) return;
+    
+    // Update subject
+    if (previewSubject && subjectInput) {
+        previewSubject.textContent = subjectInput.value || 'Votre objet ici...';
+    }
+    
+    // Get content and replace variables with sample data
+    let content = editor.innerHTML;
+    
+    // Replace variables with sample values
+    content = content.replace(/\{\{name\}\}/g, '<strong>Jean Dupont</strong>');
+    content = content.replace(/\{\{company\}\}/g, '<strong>Acme Corp</strong>');
+    content = content.replace(/\{\{email\}\}/g, '<strong>jean@exemple.fr</strong>');
+    
+    // Show preview
+    if (content.trim() === '' || content === '<br>') {
+        previewContent.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Commencez à écrire pour voir l\'aperçu...</p>';
+    } else {
+        previewContent.innerHTML = content;
+    }
 }
 
 // Setup drag & drop for images
 document.addEventListener('DOMContentLoaded', function() {
     const editor = document.getElementById('email-content');
     if (editor) {
+        // Live preview on input
+        editor.addEventListener('input', updatePreview);
+        
+        // Subject preview
+        const subjectInput = document.getElementById('campaign-subject');
+        if (subjectInput) {
+            subjectInput.addEventListener('input', updatePreview);
+        }
+        
+        // Make existing images clickable
+        editor.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG') {
+                selectImage(e.target);
+            }
+        });
+        
         editor.addEventListener('dragover', function(e) {
             e.preventDefault();
             editor.style.background = '#EFF6FF';
@@ -579,6 +861,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.style.height = 'auto';
                     img.style.borderRadius = '8px';
                     img.style.margin = '12px 0';
+                    img.onclick = function() { selectImage(this); };
                     
                     const selection = window.getSelection();
                     if (selection.rangeCount > 0) {
@@ -587,6 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         editor.appendChild(img);
                     }
+                    updatePreview();
                 };
                 reader.readAsDataURL(files[0]);
             }
