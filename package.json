@@ -1,0 +1,36 @@
+{
+  "name": "openmailer",
+  "version": "1.0.0",
+  "description": "Application de publipostage open source avec tracking",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "email",
+    "mailing",
+    "newsletter",
+    "tracking",
+    "smtp",
+    "campaign"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/votre-username/openmailer"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "handlebars": "^4.7.8",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^8.0.0",
+    "uuid": "^9.0.1"
+  }
+}

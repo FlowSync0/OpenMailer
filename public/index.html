@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenMailer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FAFAF9;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F5F5F4;
+            --text-primary: #1C1917;
+            --text-secondary: #57534E;
+            --text-muted: #A8A29E;
+            --accent-primary: #2563EB;
+            --accent-secondary: #3B82F6;
+            --accent-success: #10B981;
+            --accent-warning: #F97316;
+            --accent-danger: #EF4444;
+            --border-color: #E7E5E4;
+            --border-hover: #D6D3D1;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font-sans: 'Instrument Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --sidebar-width: 260px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .app { display: flex; min-height: 100vh; }
+
+        /* Mobile Menu Toggle */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 200;
+            padding: 0 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-header .logo { gap: 10px; }
+        .mobile-header .logo-icon { width: 32px; height: 32px; }
+        .mobile-header .logo-text { font-size: 1rem; }
+
+        .menu-toggle {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .menu-toggle svg { width: 24px; height: 24px; }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 150;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 160;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg { width: 20px; height: 20px; color: white; }
+        .logo-text { font-weight: 700; font-size: 1.1rem; color: var(--text-primary); }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent-primary); color: white; }
+        .nav-item.active:hover { background: var(--accent-secondary); }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sync-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sync-btn:hover { background: var(--bg-secondary); border-color: var(--border-hover); color: var(--text-primary); }
+        .sync-btn svg { width: 16px; height: 16px; }
+        .sync-status { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 32px 40px;
+            max-width: calc(100vw - var(--sidebar-width));
+            min-width: 0;
+        }
+
+        .page-header { margin-bottom: 32px; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .page-subtitle { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon svg { width: 22px; height: 22px; }
+        .stat-icon.blue { background: #EFF6FF; color: var(--accent-primary); }
+        .stat-icon.green { background: #ECFDF5; color: var(--accent-success); }
+        .stat-icon.orange { background: #FFF7ED; color: var(--accent-warning); }
+        .stat-icon.red { background: #FEF2F2; color: var(--accent-danger); }
+
+        .stat-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 600; color: var(--text-primary); line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+        .stat-progress { margin-top: 12px; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+        .stat-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); border-radius: 3px; transition: width 0.5s ease; }
+
+        /* Cards & Tables */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+        .card-title svg { width: 18px; height: 18px; color: var(--text-muted); }
+        .card-body { padding: 0; }
+
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .table th { text-align: left; padding: 12px 24px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .table td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover td { background: var(--bg-tertiary); }
+
+        .contact-cell { display: flex; flex-direction: column; gap: 2px; }
+        .contact-name { font-weight: 500; color: var(--text-primary); }
+        .contact-email { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+        .badge-success { background: #ECFDF5; color: #059669; }
+        .badge-danger { background: #FEF2F2; color: #DC2626; }
+        .badge-info { background: #EFF6FF; color: #2563EB; }
+        .badge-warning { background: #FFF7ED; color: #EA580C; }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: var(--transition); border: none; text-decoration: none; white-space: nowrap; }
+        .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .btn-primary { background: var(--accent-primary); color: white; }
+        .btn-primary:hover { background: var(--accent-secondary); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--bg-tertiary); border-color: var(--border-hover); color: var(--text-primary); }
+        .btn-success { background: var(--accent-success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: var(--accent-warning); color: white; }
+        .btn-warning:hover { background: #EA580C; }
+        .btn-danger { background: transparent; color: var(--accent-danger); border: 1px solid var(--accent-danger); }
+        .btn-danger:hover { background: var(--accent-danger); color: white; }
+        .btn-sm { padding: 8px 14px; font-size: 0.8rem; }
+        .btn-sm svg { width: 16px; height: 16px; }
+
+        /* Campaign Cards */
+        .campaigns-grid { display: flex; flex-direction: column; gap: 16px; }
+        .campaign-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; transition: var(--transition); }
+        .campaign-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); }
+        .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+        .campaign-info h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .campaign-info p { font-size: 0.875rem; color: var(--text-muted); }
+        .campaign-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .campaign-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .campaign-stat { text-align: center; padding: 16px 8px; background: var(--bg-tertiary); border-radius: var(--radius-md); }
+        .campaign-stat-value { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--text-primary); line-height: 1; margin-bottom: 4px; }
+        .campaign-stat-value.success { color: var(--accent-success); }
+        .campaign-stat-value.primary { color: var(--accent-primary); }
+        .campaign-stat-value.danger { color: var(--accent-danger); }
+        .campaign-stat-label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        .campaign-stat.highlight { background: #EFF6FF; }
+
+        /* Forms */
+        .form-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; max-width: 800px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+        .form-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+        .form-input, .form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 0.9rem; color: var(--text-primary); transition: var(--transition); }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+        .form-textarea { resize: vertical; min-height: 250px; font-family: var(--font-sans); font-size: 0.9rem; line-height: 1.7; }
+
+        /* Email Editor */
+        .email-editor { border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; }
+        .editor-toolbar { display: flex; gap: 4px; padding: 8px 12px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+        .toolbar-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: none; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary); transition: var(--transition); }
+        .toolbar-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .toolbar-btn svg { width: 18px; height: 18px; }
+        .toolbar-separator { width: 1px; height: 24px; background: var(--border-color); margin: 6px 8px; }
+        .editor-content { min-height: 300px; padding: 20px; background: var(--bg-secondary); font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.7; outline: none; }
+        .editor-content:empty::before { content: attr(data-placeholder); color: var(--text-muted); }
+        .editor-content img { max-width: 100%; height: auto; border-radius: var(--radius-sm); margin: 12px 0; }
+
+        /* Variable Tags */
+        .var-tag { display: inline-block; background: #EFF6FF; color: var(--accent-primary); padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em; font-weight: 500; }
+        .variables-help { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .variables-help .var-tag { cursor: pointer; transition: var(--transition); }
+        .variables-help .var-tag:hover { background: var(--accent-primary); color: white; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 24px; width: fit-content; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: var(--transition); border: none; background: none; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { background: var(--bg-secondary); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+
+        /* Alert */
+        .alert { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px; border-radius: var(--radius-md); margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+        .alert-content { display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem; flex: 1; min-width: 200px; }
+        .alert-content svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+        .alert-warning { background: #FFF7ED; color: #9A3412; border: 1px solid #FED7AA; }
+        .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state p { font-size: 0.9rem; }
+
+        /* Section visibility */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Back button */
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; cursor: pointer; margin-bottom: 16px; padding: 8px 0; background: none; border: none; transition: var(--transition); }
+        .back-btn:hover { color: var(--text-primary); }
+        .back-btn svg { width: 18px; height: 18px; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .campaign-stats { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 900px) {
+            .main { padding: 24px 20px; }
+            .page-title { font-size: 1.5rem; }
+            .stat-value { font-size: 1.5rem; }
+            .campaign-stat-value { font-size: 1.25rem; }
+            .form-card { padding: 24px; }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header { display: flex; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; padding: 80px 16px 24px; max-width: 100vw; }
+            .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+            .stat-card { padding: 16px; }
+            .campaign-stats { grid-template-columns: repeat(2, 1fr); }
+            .campaign-header { flex-direction: column; }
+            .campaign-actions { width: 100%; }
+            .campaign-actions .btn { flex: 1; min-width: 0; }
+            .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 16px; }
+            .table th, .table td { padding: 12px 16px; }
+            .form-card { max-width: 100%; }
+            .editor-toolbar { padding: 6px 8px; }
+            .toolbar-btn { width: 32px; height: 32px; }
+        }
+
+        @media (max-width: 480px) {
+            .campaign-stats { grid-template-columns: 1fr 1fr; }
+            .btn { padding: 10px 14px; font-size: 0.8rem; }
+            .btn-sm { padding: 8px 10px; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .section.active { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+            </div>
+            <span class="logo-text">OpenMailer</span>
+        </a>
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+                </div>
+                <span class="logo-text">OpenMailer</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-section="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-section="campaigns">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <span>Campagnes</span>
+            </button>
+            <button class="nav-item" data-section="contacts">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                <span>Contacts</span>
+            </button>
+            <button class="nav-item" data-section="new-campaign">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>Nouvelle campagne</span>
+            </button>
+            <button class="nav-item" data-section="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                <span>Paramètres</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="sync-btn" onclick="manualSync()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                <span>Synchroniser</span>
+            </button>
+            <div class="sync-status" id="sync-status">Auto-sync: 30s</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="section active">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Vue d'ensemble de vos campagnes email</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+                    </div>
+                    <div class="stat-value" id="stat-daily">0/50</div>
+                    <div class="stat-label">Envois aujourd'hui</div>
+                    <div class="stat-progress"><div class="stat-progress-bar" id="daily-progress" style="width: 0%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    </div>
+                    <div class="stat-value" id="stat-sent">0</div>
+                    <div class="stat-label">Total envoyés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                    </div>
+                    <div class="stat-value" id="stat-opened">0</div>
+                    <div class="stat-label">Ouvertures</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>
+                    </div>
+                    <div class="stat-value" id="stat-clicked">0</div>
+                    <div class="stat-label">Clics</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Tracking récent</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead><tr><th>Contact</th><th>Entreprise</th><th>Envoyé</th><th>Statut</th><th>Ouvert le</th></tr></thead>
+                            <tbody id="tracking-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Campaigns Section -->
+        <section id="campaigns-section" class="section">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="page-title">Campagnes</h1>
+                    <p class="page-subtitle">Gérez vos campagnes d'emailing</p>
+                </div>
+                <button class="btn btn-primary" onclick="showSection('new-campaign')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nouvelle campagne
+                </button>
+            </div>
+            <div class="campaigns-grid" id="campaigns-list"></div>
+        </section>
+
+        <!-- Campaign Detail Section -->
+        <section id="campaign-detail-section" class="section">
+            <button class="back-btn" onclick="showSection('campaigns')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Retour aux campagnes
+            </button>
+            <div class="page-header">
+                <h1 class="page-title" id="campaign-detail-title">Détails campagne</h1>
+            </div>
+            <div id="campaign-detail-content"></div>
+        </section>
+
+        <!-- Contacts Section -->
+        <section id="contacts-section" class="section">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="page-title">Contacts</h1>
+                    <p class="page-subtitle">Gérez votre liste de contacts</p>
+                </div>
+                <div>
+                    <input type="file" id="csv-file" accept=".csv" style="display:none;" onchange="importCSV(this)">
+                    <button class="btn btn-primary" onclick="document.getElementById('csv-file').click()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Importer CSV
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead><tr><th>Email</th><th>Nom</th><th>Entreprise</th><th>Statut</th></tr></thead>
+                            <tbody id="contacts-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Campaign Section -->
+        <section id="new-campaign-section" class="section">
+            <button class="back-btn" onclick="showSection('campaigns')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Retour aux campagnes
+            </button>
+            <div class="page-header">
+                <h1 class="page-title">Nouvelle campagne</h1>
+                <p class="page-subtitle">Rédigez votre email comme un message classique</p>
+            </div>
+            <form id="campaign-form" class="form-card">
+                <div class="form-group">
+                    <label class="form-label">Nom de la campagne</label>
+                    <input type="text" class="form-input" id="campaign-name" placeholder="Ex: Lancement produit Q1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Objet de l'email</label>
+                    <input type="text" class="form-input" id="campaign-subject" placeholder="Ex: Découvrez notre nouvelle offre" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contenu de l'email</label>
+                    <div class="email-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="Gras">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z"/><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z"/></svg>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="Italique">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="formatText('underline')" title="Souligné">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+                            </button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="toolbar-btn" onclick="insertLink()" title="Lien">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="insertImage()" title="Image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="toolbar-btn" onclick="insertVariable('name')" title="Insérer {{name}}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </button>
+                            <button type="button" class="toolbar-btn" onclick="insertVariable('company')" title="Insérer {{company}}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            </button>
+                        </div>
+                        <div class="editor-content" id="email-content" contenteditable="true" data-placeholder="Bonjour {{name}},
+
+Écrivez votre message ici...
+
+Cordialement,
+Votre signature"></div>
+                    </div>
+                    <div class="variables-help">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 8px;">Variables :</span>
+                        <span class="var-tag" onclick="insertVariable('name')">{{name}}</span>
+                        <span class="var-tag" onclick="insertVariable('company')">{{company}}</span>
+                        <span class="var-tag" onclick="insertVariable('email')">{{email}}</span>
+                        <span class="var-tag" onclick="insertVariable('unsubscribeUrl')">{{unsubscribeUrl}}</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Créer la campagne
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings-section" class="section">
+            <div class="page-header">
+                <h1 class="page-title">Paramètres</h1>
+                <p class="page-subtitle">Configurez votre application</p>
+            </div>
+            
+            <div class="form-card" style="max-width: 600px;">
+                <h3 style="margin-bottom: 24px; font-size: 1.1rem;">Limite d'envoi journalière</h3>
+                
+                <div class="alert" style="background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; margin-bottom: 24px;">
+                    <div class="alert-content" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <strong>💡 Pourquoi une limite ?</strong>
+                        <p style="margin: 0; font-size: 0.85rem; line-height: 1.5;">
+                            Les fournisseurs email (Gmail, Outlook...) surveillent les envois massifs. 
+                            Une limite de <strong>50 emails/jour</strong> permet d'éviter :
+                        </p>
+                        <ul style="margin: 8px 0 0 20px; font-size: 0.85rem; line-height: 1.6;">
+                            <li>Le <strong>soft ban</strong> temporaire de votre compte</li>
+                            <li>Le classement en <strong>spam</strong> de vos emails</li>
+                            <li>La dégradation de votre <strong>réputation d'expéditeur</strong></li>
+                        </ul>
+                        <p style="margin: 8px 0 0; font-size: 0.85rem;">
+                            Gmail gratuit limite à ~500/jour, mais 50 est recommandé pour le cold emailing.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre maximum d'emails par jour</label>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="number" class="form-input" id="settings-daily-limit" min="1" max="500" value="50" style="max-width: 120px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">emails / jour</span>
+                    </div>
+                    <p class="form-hint">Recommandé : 50 pour éviter les problèmes de délivrabilité</p>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Enregistrer
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('settings-daily-limit').value = 50;">
+                        Réinitialiser (50)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-card" style="max-width: 600px; margin-top: 24px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem;">À propos du tracking</h3>
+                
+                <div class="alert" style="background: #FFF7ED; border: 1px solid #FED7AA; color: #9A3412;">
+                    <div class="alert-content" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <strong>⚠️ Tracking local uniquement</strong>
+                        <p style="margin: 0; font-size: 0.85rem; line-height: 1.5;">
+                            Le tracking des ouvertures fonctionne via un <strong>pixel invisible</strong> dans l'email. 
+                            Pour que ce pixel soit accessible, votre serveur doit être <strong>accessible publiquement</strong> (pas en localhost).
+                        </p>
+                        <p style="margin: 8px 0 0; font-size: 0.85rem; line-height: 1.5;">
+                            <strong>En local :</strong> Le tracking ne fonctionnera pas car les destinataires ne peuvent pas atteindre localhost.<br>
+                            <strong>En production :</strong> Déployez sur un serveur avec une URL publique (ex: VPS, Heroku, Railway...).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+const API = '';
+let currentSettings = { dailyLimit: 50 };
+
+// Mobile sidebar toggle
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+
+// Load settings on init
+async function loadSettings() {
+    const res = await fetch(`${API}/api/settings`);
+    currentSettings = await res.json();
+    document.getElementById('settings-daily-limit').value = currentSettings.dailyLimit;
+}
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        showSection(item.dataset.section);
+        if (window.innerWidth <= 768) toggleSidebar();
+    });
+});
+
+function showSection(section) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById(`${section}-section`).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    const navItem = document.querySelector(`[data-section="${section}"]`);
+    if (navItem) navItem.classList.add('active');
+    
+    if (section === 'campaigns') loadCampaigns();
+    if (section === 'contacts') loadContacts();
+    if (section === 'dashboard') { loadStats(); loadTrackingTable(); }
+    if (section === 'settings') loadSettings();
+}
+
+// Stats
+async function loadStats() {
+    const res = await fetch(`${API}/api/stats`);
+    const stats = await res.json();
+    document.getElementById('stat-daily').textContent = `${stats.dailySent}/${stats.dailyLimit}`;
+    document.getElementById('stat-sent').textContent = stats.totalSent;
+    document.getElementById('stat-opened').textContent = stats.totalOpened;
+    document.getElementById('stat-clicked').textContent = stats.totalClicked;
+    document.getElementById('daily-progress').style.width = `${(stats.dailySent/stats.dailyLimit)*100}%`;
+}
+
+// Tracking Table
+async function loadTrackingTable() {
+    const res = await fetch(`${API}/api/tracking-details`);
+    const emails = await res.json();
+    const html = emails.slice(0, 20).map(e => `
+        <tr>
+            <td><div class="contact-cell"><span class="contact-name">${e.name || 'N/A'}</span><span class="contact-email">${e.email}</span></div></td>
+            <td>${e.company || '-'}</td>
+            <td>${new Date(e.sent_at).toLocaleDateString('fr-FR')}</td>
+            <td>${e.opened_at ? '<span class="badge badge-success">Ouvert</span>' : '<span class="badge badge-danger">Non ouvert</span>'}${e.clicked_at ? ' <span class="badge badge-info">Cliqué</span>' : ''}</td>
+            <td>${e.opened_at ? new Date(e.opened_at).toLocaleString('fr-FR') : '-'}</td>
+        </tr>
+    `).join('');
+    document.getElementById('tracking-table').innerHTML = html || '<tr><td colspan="5" class="empty-state"><p>Aucun email envoyé</p></td></tr>';
+}
+
+// Campaigns
+async function loadCampaigns() {
+    const res = await fetch(`${API}/api/campaigns`);
+    const campaigns = await res.json();
+    const trackingRes = await fetch(`${API}/api/tracking-details`);
+    const allEmails = await trackingRes.json();
+    
+    const campaignsHtml = await Promise.all(campaigns.map(async c => {
+        const emails = allEmails.filter(e => e.campaign_id === c.id);
+        const sent = emails.length;
+        const opened = emails.filter(e => e.opened_at).length;
+        const openRate = sent > 0 ? Math.round((opened/sent)*100) : 0;
+        
+        const pendingRes = await fetch(`${API}/api/campaigns/${c.id}/pending`);
+        const pending = await pendingRes.json();
+        
+        return `
+        <div class="campaign-card">
+            <div class="campaign-header">
+                <div class="campaign-info"><h3>${c.name}</h3><p>${c.subject}</p></div>
+                <div class="campaign-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="viewCampaignDetail(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="btn-text">Tracking</span></button>
+                    <button class="btn btn-secondary btn-sm" onclick="viewCampaign(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span class="btn-text">Aperçu</span></button>
+                    <button class="btn btn-secondary btn-sm" onclick="testCampaign(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="btn-text">Test</span></button>
+                    ${pending.count > 0 ? `<button class="btn btn-primary btn-sm" onclick="sendCampaign(${c.id}, ${pending.count})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="btn-text">Envoyer (${pending.count})</span></button>` : ''}
+                    ${sent - opened > 0 ? `<button class="btn btn-warning btn-sm" onclick="resendUnopened(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg><span class="btn-text">Relancer (${sent-opened})</span></button>` : ''}
+                </div>
+            </div>
+            <div class="campaign-stats">
+                <div class="campaign-stat"><div class="campaign-stat-value">${sent}</div><div class="campaign-stat-label">Envoyés</div></div>
+                <div class="campaign-stat"><div class="campaign-stat-value success">${opened}</div><div class="campaign-stat-label">Ouverts</div></div>
+                <div class="campaign-stat"><div class="campaign-stat-value primary">${openRate}%</div><div class="campaign-stat-label">Taux ouv.</div></div>
+                <div class="campaign-stat"><div class="campaign-stat-value danger">${sent - opened}</div><div class="campaign-stat-label">Non ouverts</div></div>
+                <div class="campaign-stat ${pending.count > 0 ? 'highlight' : ''}"><div class="campaign-stat-value ${pending.count > 0 ? 'primary' : ''}">${pending.count}</div><div class="campaign-stat-label">En attente</div></div>
+            </div>
+        </div>`;
+    }));
+    document.getElementById('campaigns-list').innerHTML = campaignsHtml.join('') || '<div class="empty-state"><p>Aucune campagne</p></div>';
+}
+
+// Campaign Detail
+async function viewCampaignDetail(id) {
+    const [campaignRes, trackingRes] = await Promise.all([fetch(`${API}/api/campaigns/${id}`), fetch(`${API}/api/tracking-details`)]);
+    const campaign = await campaignRes.json();
+    const allEmails = await trackingRes.json();
+    const emails = allEmails.filter(e => e.campaign_id === id);
+    const opened = emails.filter(e => e.opened_at);
+    const notOpened = emails.filter(e => !e.opened_at);
+    
+    document.getElementById('campaign-detail-title').textContent = campaign.name;
+    
+    const html = `
+        <div class="stats-grid" style="margin-bottom: 24px;">
+            <div class="stat-card"><div class="stat-value">${emails.length}</div><div class="stat-label">Envoyés</div></div>
+            <div class="stat-card"><div class="stat-value" style="color: var(--accent-success)">${opened.length}</div><div class="stat-label">Ouverts</div></div>
+            <div class="stat-card"><div class="stat-value" style="color: var(--accent-danger)">${notOpened.length}</div><div class="stat-label">Non ouverts</div></div>
+            <div class="stat-card"><div class="stat-value">${emails.length > 0 ? Math.round((opened.length/emails.length)*100) : 0}%</div><div class="stat-label">Taux d'ouverture</div></div>
+        </div>
+        ${notOpened.length > 0 ? `<div class="alert alert-warning"><div class="alert-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span><strong>${notOpened.length} contacts</strong> n'ont pas ouvert cet email</span></div><button class="btn btn-warning btn-sm" onclick="resendUnopened(${id})">Relancer</button></div>` : `<div class="alert alert-success"><div class="alert-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Tous les contacts ont ouvert cet email !</span></div></div>`}
+        <div class="tabs"><button class="tab active" onclick="switchTab(this, 'opened-tab')">Ouverts (${opened.length})</button><button class="tab" onclick="switchTab(this, 'not-opened-tab')">Non ouverts (${notOpened.length})</button></div>
+        <div id="opened-tab" class="card"><div class="card-body"><div class="table-wrapper"><table class="table"><thead><tr><th>Contact</th><th>Email</th><th>Entreprise</th><th>Ouvert le</th></tr></thead><tbody>${opened.map(e => `<tr><td><strong>${e.name || 'N/A'}</strong></td><td>${e.email}</td><td>${e.company || '-'}</td><td><span class="badge badge-success">${new Date(e.opened_at).toLocaleString('fr-FR')}</span></td></tr>`).join('') || '<tr><td colspan="4" class="empty-state"><p>Aucun</p></td></tr>'}</tbody></table></div></div></div>
+        <div id="not-opened-tab" class="card" style="display: none;"><div class="card-body"><div class="table-wrapper"><table class="table"><thead><tr><th>Contact</th><th>Email</th><th>Entreprise</th><th>Envoyé le</th></tr></thead><tbody>${notOpened.map(e => `<tr><td><strong>${e.name || 'N/A'}</strong></td><td>${e.email}</td><td>${e.company || '-'}</td><td><span class="badge badge-danger">${new Date(e.sent_at).toLocaleString('fr-FR')}</span></td></tr>`).join('') || '<tr><td colspan="4" class="empty-state"><p>Aucun</p></td></tr>'}</tbody></table></div></div></div>`;
+    
+    document.getElementById('campaign-detail-content').innerHTML = html;
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById('campaign-detail-section').classList.add('active');
+}
+
+function switchTab(btn, tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#campaign-detail-content .card').forEach(c => c.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+}
+
+// Contacts
+async function loadContacts() {
+    const res = await fetch(`${API}/api/contacts`);
+    const contacts = await res.json();
+    const html = contacts.map(c => `<tr><td>${c.email}</td><td>${c.name || '-'}</td><td>${c.company || '-'}</td><td><span class="badge badge-success">Actif</span></td></tr>`).join('');
+    document.getElementById('contacts-table').innerHTML = html || '<tr><td colspan="4" class="empty-state"><p>Aucun contact</p></td></tr>';
+}
+
+async function importCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API}/api/contacts/import`, { method: 'POST', body: formData });
+    const result = await res.json();
+    alert(`${result.imported} contacts importés sur ${result.total}`);
+    loadContacts();
+    input.value = '';
+}
+
+// Campaign Actions
+async function sendCampaign(id, pendingCount) {
+    if (!confirm(`Envoyer cette campagne à ${pendingCount} nouveau(x) contact(s) ?`)) return;
+    const res = await fetch(`${API}/api/campaigns/${id}/send`, { method: 'POST' });
+    const result = await res.json();
+    if (result.error) { alert(result.error); } else { alert(`${result.sent} emails envoyés ! Reste ${result.remaining} envois aujourd'hui.`); }
+    loadStats(); loadCampaigns();
+}
+
+async function viewCampaign(id) { window.open(`${API}/api/campaigns/${id}/preview`, '_blank'); }
+
+async function testCampaign(id) {
+    const email = prompt('Email de test :');
+    if (!email) return;
+    const res = await fetch(`${API}/api/campaigns/${id}/test`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    const result = await res.json();
+    alert(result.success ? 'Email de test envoyé à ' + email : 'Erreur: ' + result.error);
+}
+
+async function resendUnopened(id) {
+    const notOpenedRes = await fetch(`${API}/api/campaigns/${id}/not-opened`);
+    const notOpened = await notOpenedRes.json();
+    if (notOpened.length === 0) { alert('Tous les contacts ont déjà ouvert cet email !'); return; }
+    if (!confirm(`Relancer ${notOpened.length} contact(s) qui n'ont pas ouvert ?`)) return;
+    const res = await fetch(`${API}/api/campaigns/${id}/resend-unopened`, { method: 'POST' });
+    const result = await res.json();
+    if (result.error) { alert('Erreur: ' + result.error); } else { alert(`${result.sent} emails de relance envoyés.`); loadStats(); loadCampaigns(); }
+}
+
+// Email Editor Functions
+function formatText(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('email-content').focus();
+}
+
+function insertLink() {
+    const url = prompt('URL du lien :');
+    if (url) document.execCommand('createLink', false, url);
+}
+
+function insertImage() {
+    const url = prompt('URL de l\'image :');
+    if (url) document.execCommand('insertImage', false, url);
+}
+
+function insertVariable(varName) {
+    const editor = document.getElementById('email-content');
+    editor.focus();
+    document.execCommand('insertText', false, `{{${varName}}}`);
+}
+
+function getEditorContent() {
+    const editor = document.getElementById('email-content');
+    let html = editor.innerHTML;
+    // Wrap in basic email template
+    return `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.6;">
+{{{trackingLogo}}}
+${html}
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+<p style="font-size: 12px; color: #999; text-align: center;">
+    <a href="{{unsubscribeUrl}}" style="color: #999;">Se désinscrire</a>
+</p>
+</div>`;
+}
+
+// Sync
+async function manualSync() {
+    const btn = event.target.closest('.sync-btn');
+    btn.disabled = true;
+    document.getElementById('sync-status').textContent = 'Sync en cours...';
+    await fetch(`${API}/api/sync-tracking`, { method: 'POST' });
+    await Promise.all([loadStats(), loadTrackingTable()]);
+    btn.disabled = false;
+    document.getElementById('sync-status').textContent = 'Sync OK !';
+    setTimeout(() => { document.getElementById('sync-status').textContent = 'Auto-sync: 30s'; }, 2000);
+}
+
+// Form
+document.getElementById('campaign-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('campaign-name').value,
+        subject: document.getElementById('campaign-subject').value,
+        content: getEditorContent()
+    };
+    await fetch(`${API}/api/campaigns`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    alert('Campagne créée !');
+    e.target.reset();
+    document.getElementById('email-content').innerHTML = '';
+    showSection('campaigns');
+});
+
+// Settings
+async function saveSettings() {
+    const dailyLimit = parseInt(document.getElementById('settings-daily-limit').value);
+    if (dailyLimit < 1 || dailyLimit > 500) { alert('La limite doit être entre 1 et 500'); return; }
+    const res = await fetch(`${API}/api/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dailyLimit }) });
+    if (res.ok) { currentSettings.dailyLimit = dailyLimit; alert('Paramètres enregistrés !'); loadStats(); } else { alert('Erreur lors de la sauvegarde'); }
+}
+
+// Init
+loadStats();
+loadTrackingTable();
+setInterval(() => { loadStats(); loadTrackingTable(); }, 30000);
+</script>
+</body>
+</html>
