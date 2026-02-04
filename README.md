@@ -15,6 +15,22 @@
 
 **OpenMailer** is a lightweight, self-hosted email campaign tool for small businesses and developers. Send personalized emails, track opens/clicks, and manage unsubscribes — all from a clean, modern interface.
 
+![Dashboard](screenshots/dashboard.png)
+
+<details>
+<summary>📸 More Screenshots</summary>
+
+### Campaign Editor
+![New Campaign](screenshots/new-campaign.png)
+
+### Settings
+![Settings](screenshots/settings.png)
+
+### Mobile View
+![Mobile](screenshots/mobile-dashboard.png)
+
+</details>
+
 🚫 No monthly fees • 🔒 Your data stays yours • ⚡ Simple setup
 
 </div>
