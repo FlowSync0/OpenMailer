@@ -146,7 +146,6 @@ Use the built-in WYSIWYG editor to compose your email. Available template variab
 | `{{name}}` | Contact's name |
 | `{{company}}` | Contact's company |
 | `{{email}}` | Contact's email |
-| `{{unsubscribeUrl}}` | Unsubscribe link (GDPR required) |
 
 ### 3. Send & Track
 
@@ -170,7 +169,6 @@ Gmail allows ~500/day, but 50 is recommended for cold outreach. Adjust in Settin
 
 - **Opens**: Invisible 1x1 pixel loaded when email is viewed
 - **Clicks**: Links wrapped through tracking endpoint
-- **Unsubscribes**: Automatic via `{{unsubscribeUrl}}`
 
 ### ⚠️ Local Limitations
 

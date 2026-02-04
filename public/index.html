@@ -633,8 +633,8 @@ Votre signature"></div>
                         <span class="var-tag" onclick="insertVariable('name')">{{name}}</span>
                         <span class="var-tag" onclick="insertVariable('company')">{{company}}</span>
                         <span class="var-tag" onclick="insertVariable('email')">{{email}}</span>
-                        <span class="var-tag" onclick="insertVariable('unsubscribeUrl')">{{unsubscribeUrl}}</span>
                     </div>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
                 </div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                     <button type="submit" class="btn btn-primary">
@@ -915,9 +915,82 @@ function insertLink() {
 }
 
 function insertImage() {
-    const url = prompt('URL de l\'image :');
-    if (url) document.execCommand('insertImage', false, url);
+    document.getElementById('image-upload').click();
 }
+
+function handleImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.borderRadius = '8px';
+        img.style.margin = '12px 0';
+        
+        const editor = document.getElementById('email-content');
+        editor.focus();
+        
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.insertNode(img);
+            range.setStartAfter(img);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else {
+            editor.appendChild(img);
+        }
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+// Setup drag & drop for images
+document.addEventListener('DOMContentLoaded', function() {
+    const editor = document.getElementById('email-content');
+    if (editor) {
+        editor.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            editor.style.background = '#EFF6FF';
+        });
+        
+        editor.addEventListener('dragleave', function(e) {
+            editor.style.background = '';
+        });
+        
+        editor.addEventListener('drop', function(e) {
+            e.preventDefault();
+            editor.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '8px';
+                    img.style.margin = '12px 0';
+                    
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        range.insertNode(img);
+                    } else {
+                        editor.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    }
+});
 
 function insertVariable(varName) {
     const editor = document.getElementById('email-content');
@@ -932,10 +1005,6 @@ function getEditorContent() {
     return `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.6;">
 {{{trackingLogo}}}
 ${html}
-<hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-<p style="font-size: 12px; color: #999; text-align: center;">
-    <a href="{{unsubscribeUrl}}" style="color: #999;">Se désinscrire</a>
-</p>
 </div>`;
 }
 
