@@ -220,6 +220,16 @@ app.get('/api/campaigns/:id/not-opened', (req, res) => {
     res.json(contacts);
 });
 
+app.get('/api/campaigns/:id/opened', (req, res) => {
+    const contacts = db.prepare(`
+        SELECT c.*, e.sent_at, e.opened_at
+        FROM emails e 
+        JOIN contacts c ON e.contact_id = c.id 
+        WHERE e.campaign_id = ? AND e.opened_at IS NOT NULL AND c.unsubscribed = 0
+    `).all(req.params.id);
+    res.json(contacts);
+});
+
 app.post('/api/campaigns/:id/resend-unopened', async (req, res) => {
     const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(req.params.id);
     if (!campaign) return res.status(404).json({ error: 'Campagne non trouvée' });
@@ -247,6 +257,35 @@ app.post('/api/campaigns/:id/resend-unopened', async (req, res) => {
     }
 
     res.json({ sent, total: notOpened.length, remaining: dailyLimit - getDailyCount() });
+});
+
+app.post('/api/campaigns/:id/resend-opened', async (req, res) => {
+    const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(req.params.id);
+    if (!campaign) return res.status(404).json({ error: 'Campagne non trouvée' });
+
+    const dailyLimit = getDailyLimit();
+    
+    if (getDailyCount() >= dailyLimit) {
+        return res.status(429).json({ error: 'Limite journalière atteinte', sent: 0 });
+    }
+
+    const opened = db.prepare(`
+        SELECT c.* FROM emails e 
+        JOIN contacts c ON e.contact_id = c.id 
+        WHERE e.campaign_id = ? AND e.opened_at IS NOT NULL AND c.unsubscribed = 0
+    `).all(req.params.id);
+
+    const deleteOld = db.prepare('DELETE FROM emails WHERE campaign_id = ? AND contact_id = ?');
+    
+    let sent = 0;
+    for (const contact of opened) {
+        if (getDailyCount() >= dailyLimit) break;
+        deleteOld.run(campaign.id, contact.id);
+        const success = await sendCampaignEmail(campaign, contact);
+        if (success) sent++;
+    }
+
+    res.json({ sent, total: opened.length, remaining: dailyLimit - getDailyCount() });
 });
 
 // ============================================
